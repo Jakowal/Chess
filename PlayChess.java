@@ -46,42 +46,42 @@ class PlayChess {
         }
         writer.println(turn);
         writer.println("#, Pawns, {tileLetter,tileNumber,colour}");
-        for(Tile t : b.boardList) {
+        for(Tile1 t : b.boardList) {
           if (t.getPiece() instanceof Pawn) {
             int num = t.getNumber();
             writer.println(t.getLetter() + ", " + num + ", " + t.getPiece().getColour());
           }
         }
         writer.println("#, Rooks, {tileLetter,tileNumber,colour}");
-        for(Tile t : b.boardList) {
+        for(Tile1 t : b.boardList) {
           if (t.getPiece() instanceof Rook) {
             int num = t.getNumber();
             writer.println(t.getLetter() + ", " + num + ", " + t.getPiece().getColour());
           }
         }
         writer.println("#, Bishops, {tileLetter,tileNumber,colour}");
-        for(Tile t : b.boardList) {
+        for(Tile1 t : b.boardList) {
           if (t.getPiece() instanceof Bishop) {
             int num = t.getNumber();
             writer.println(t.getLetter() + ", " + num + ", " + t.getPiece().getColour());
           }
         }
         writer.println("#, Knights, {tileLetter,tileNumber,colour}");
-        for(Tile t : b.boardList) {
+        for(Tile1 t : b.boardList) {
           if (t.getPiece() instanceof Knight) {
             int num = t.getNumber();
             writer.println(t.getLetter() + ", " + num + ", " + t.getPiece().getColour());
           }
         }
         writer.println("#, Queens, {tileLetter,tileNumber,colour}");
-        for(Tile t : b.boardList) {
+        for(Tile1 t : b.boardList) {
           if (t.getPiece() instanceof Queen) {
             int num = t.getNumber();
             writer.println(t.getLetter() + ", " + num + ", " + t.getPiece().getColour());
           }
         }
         writer.println("#, Kings, {tileLetter,tileNumber,colour}");
-        for(Tile t : b.boardList) {
+        for(Tile1 t : b.boardList) {
           if (t.getPiece() instanceof King) {
             int num = t.getNumber();
             writer.println(t.getLetter() + ", " + num + ", " + t.getPiece().getColour());

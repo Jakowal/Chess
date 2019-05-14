@@ -3,7 +3,7 @@ import java.io.*;
 
 class Board {
 
-  public static ArrayList<Tile> boardList = new ArrayList<Tile>();
+  public static ArrayList<Tile1> boardList = new ArrayList<Tile1>();
   protected static String[] letters = {"A","B","C","D","E","F","G","H"};
   private static String turn;
 
@@ -13,11 +13,11 @@ class Board {
       for (int h = 0; h < 8; h++) {
         String thisLetter = letters[h];
         if (lastWhite) {
-          boardList.add(new BlackTile(thisLetter,i,this));
+          boardList.add(new BlackTile1(thisLetter,i,this));
           lastWhite = false;
         }
         else {
-          boardList.add(new WhiteTile(thisLetter,i,this));
+          boardList.add(new WhiteTile1(thisLetter,i,this));
           lastWhite = true;
         }
       }
@@ -63,8 +63,8 @@ class Board {
     int oldPos = letterNumber(l) + numberNumber(n);
     int newPos = letterNumber(nl) + numberNumber(nn);
 
-    Tile tile = boardList.get(oldPos);
-    Tile newTile = boardList.get(newPos);
+    Tile1 tile = boardList.get(oldPos);
+    Tile1 newTile = boardList.get(newPos);
     Piece piece = tile.getPiece();
     if (!whiteTurn && piece.getColour() == "White" || whiteTurn && piece.getColour() == "Black") {
       System.out.println("Select a piece of the correct colour.");
@@ -80,7 +80,7 @@ class Board {
     }
   }
 
-  public static Tile getTile(int pos) {
+  public static Tile1 getTile(int pos) {
     return boardList.get(pos);
   }
 

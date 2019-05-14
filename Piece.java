@@ -3,14 +3,14 @@ import java.util.ArrayList;
 abstract class Piece {
 
   protected String colour;
-  public Tile tile;
+  public Tile1 tile;
 
-  Piece(String c, Tile t) {
+  Piece(String c, Tile1 t) {
     colour = c;
     tile = t;
   }
 
-  public void setTile(Tile n) {
+  public void setTile(Tile1 n) {
     tile = n;
   }
 
@@ -18,7 +18,7 @@ abstract class Piece {
     return colour;
   }
 
-  protected boolean place(Tile newTile) {
+  protected boolean place(Tile1 newTile) {
     if (newTile.getPiece() == null) {
       tile = newTile;
       newTile.setPiece(this);
@@ -32,14 +32,14 @@ abstract class Piece {
     return false;
   }
 
-  public abstract boolean move(int oldPos, int newPos, Tile newTile);
+  public abstract boolean move(int oldPos, int newPos, Tile1 newTile);
 
   public abstract String getSign();
 }
 
 class Pawn extends Piece {
 
-  Pawn(String c, Tile t) {
+  Pawn(String c, Tile1 t) {
     super(c,t);
   }
 
@@ -54,7 +54,7 @@ class Pawn extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile newTile) {
+  public boolean move(int oldPos, int newPos, Tile1 newTile) {
     if (oldPos == 8 && colour.compareTo("Black") == 0 && newPos == 24
     || oldPos == 9  && colour.compareTo("Black") == 0 && newPos == 25
     || oldPos == 10 && colour.compareTo("Black") == 0 && newPos == 26
@@ -120,7 +120,7 @@ class Pawn extends Piece {
     return false;
   }
 
-  private void crown(int newPos, Tile newTile) {
+  private void crown(int newPos, Tile1 newTile) {
     for (int i = 0; i < 8; i++) {
       if (i == newPos && colour == "White") {
         newTile.setPiece(new Queen("White",newTile));
@@ -139,7 +139,7 @@ class Pawn extends Piece {
 
 class Rook extends Piece {
 
-  Rook(String c,Tile t) {
+  Rook(String c,Tile1 t) {
     super(c,t);
   }
 
@@ -154,7 +154,7 @@ class Rook extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile newTile) {
+  public boolean move(int oldPos, int newPos, Tile1 newTile) {
     Board brett = tile.getBoard();
     if (newTile.getLetter() == tile.getLetter() && newTile.getNumber() != tile.getNumber()) {
       if (newPos - oldPos > 0) {
@@ -226,7 +226,7 @@ class Rook extends Piece {
 
 class Bishop extends Piece {
 
-  Bishop(String c,Tile t) {
+  Bishop(String c,Tile1 t) {
     super(c,t);
   }
 
@@ -241,7 +241,7 @@ class Bishop extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile newTile) {
+  public boolean move(int oldPos, int newPos, Tile1 newTile) {
     if (newTile.getColour() == tile.getColour()) {
       Board brett = tile.getBoard();
       if (brett.letterNumber(newTile.getLetter()) > brett.letterNumber(tile.getLetter())) {
@@ -324,7 +324,7 @@ class Bishop extends Piece {
 
 class Knight extends Piece {
 
-  Knight(String c,Tile t) {
+  Knight(String c,Tile1 t) {
     super(c,t);
   }
 
@@ -339,7 +339,7 @@ class Knight extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile newTile) {
+  public boolean move(int oldPos, int newPos, Tile1 newTile) {
     if (newPos == oldPos - 17) {
       return place(newTile);
     }
@@ -370,7 +370,7 @@ class Knight extends Piece {
 
 class Queen extends Piece {
 
-  Queen(String c,Tile t) {
+  Queen(String c,Tile1 t) {
     super(c,t);
   }
 
@@ -385,7 +385,7 @@ class Queen extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile newTile) {
+  public boolean move(int oldPos, int newPos, Tile1 newTile) {
     Board brett = tile.getBoard();
     if (newTile.getLetter() == tile.getLetter() && newTile.getNumber() != tile.getNumber()) {
       return rookMove1(oldPos,newPos,newTile,brett);
@@ -399,7 +399,7 @@ class Queen extends Piece {
     return false;
   }
 
-  private boolean rookMove1(int oldPos, int newPos, Tile newTile, Board brett) {
+  private boolean rookMove1(int oldPos, int newPos, Tile1 newTile, Board brett) {
     if (newPos - oldPos > 0) {
       for (int i = (oldPos+8); i <= newPos; i+=8) {
         if ((brett.getTile(i)).getPiece() != null) {
@@ -432,7 +432,7 @@ class Queen extends Piece {
     return false;
   }
 
-  private boolean rookMove2(int oldPos, int newPos, Tile newTile, Board brett) {
+  private boolean rookMove2(int oldPos, int newPos, Tile1 newTile, Board brett) {
     if (newPos - oldPos > 0) {
       for (int i = (oldPos+1); i <= newPos; i++) {
         if ((brett.getTile(i)).getPiece() != null) {
@@ -466,7 +466,7 @@ class Queen extends Piece {
     return false;
   }
 
-  private boolean bishopMove(int oldPos, int newPos, Tile newTile, Board brett) {
+  private boolean bishopMove(int oldPos, int newPos, Tile1 newTile, Board brett) {
     if (brett.letterNumber(newTile.getLetter()) > brett.letterNumber(tile.getLetter())) {
       if (newTile.getNumber() > tile.getNumber()) {
         for (int i = (oldPos+9); i <= newPos; i+=9) {
@@ -546,7 +546,7 @@ class Queen extends Piece {
 
 class King extends Piece {
 
-  King(String c,Tile t) {
+  King(String c,Tile1 t) {
     super(c,t);
   }
 
@@ -561,7 +561,7 @@ class King extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile newTile) {
+  public boolean move(int oldPos, int newPos, Tile1 newTile) {
     if (oldPos == 59 && newPos == 63 && colour == "White" && newTile.getPiece().getColour() == colour
     || oldPos == 59 && newPos == 56 && colour == "White" && newTile.getPiece().getColour() == colour) {
       newTile.setPiece(new King(colour, newTile));

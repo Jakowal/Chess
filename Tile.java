@@ -1,11 +1,11 @@
-abstract class Tile {
+abstract class Tile1 {
 
   protected Piece myPiece;
   protected String letter;
   protected int number;
   protected Board board;
 
-  Tile(String l, int n, Board b) {
+  Tile1(String l, int n, Board b) {
     letter = l;
     number = n;
     board = b;
@@ -37,9 +37,9 @@ abstract class Tile {
   public abstract String toString2();
 }
 
-class WhiteTile extends Tile {
+class WhiteTile1 extends Tile1 {
 
-  WhiteTile(String l, int n,Board b) {
+  WhiteTile1(String l, int n,Board b) {
     super(l,n,b);
   }
 
@@ -59,9 +59,9 @@ class WhiteTile extends Tile {
   }
 }
 
-class BlackTile extends Tile {
+class BlackTile1 extends Tile1 {
 
-  BlackTile(String l, int n, Board b) {
+  BlackTile1(String l, int n, Board b) {
     super(l,n,b);
   }
 
