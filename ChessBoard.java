@@ -108,11 +108,11 @@ public class ChessBoard extends Application {
       for(Tile[] t : board) {
         for (Tile v : t) {
           if (v.getPiece() instanceof Pawn) {
-            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1]);
+            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1])-1;
             int count = 0;
             for (int i = 0; i < 8; i++) {
               if (ChessBoard.letters[i] == v.getLetter()) {
-                count = i-1;
+                count = i;
                 break;
               }
             }
@@ -125,11 +125,11 @@ public class ChessBoard extends Application {
       for(Tile[] t : board) {
         for (Tile v : t) {
           if (v.getPiece() instanceof Rook) {
-            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1]);
+            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1])-1;
             int count = 0;
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 8; i++) {
               if (ChessBoard.letters[i] == v.getLetter()) {
-                count = i-1;
+                count = i;
                 break;
               }
             }
@@ -142,11 +142,11 @@ public class ChessBoard extends Application {
       for(Tile[] t : board) {
         for (Tile v : t) {
           if (v.getPiece() instanceof Bishop) {
-            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1]);
+            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1])-1;
             int count = 0;
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 8; i++) {
               if (ChessBoard.letters[i] == v.getLetter()) {
-                count = i-1;
+                count = i;
                 break;
               }
             }
@@ -159,11 +159,11 @@ public class ChessBoard extends Application {
       for(Tile[] t : board) {
         for (Tile v : t) {
           if (v.getPiece() instanceof Knight) {
-            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1]);
+            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1])-1;
             int count = 0;
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 8; i++) {
               if (ChessBoard.letters[i] == v.getLetter()) {
-                count = i-1;
+                count = i;
                 break;
               }
             }
@@ -176,11 +176,11 @@ public class ChessBoard extends Application {
       for(Tile[] t : board) {
         for (Tile v : t) {
           if (v.getPiece() instanceof Queen) {
-            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1]);
+            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1])-1;
             int count = 0;
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 8; i++) {
               if (ChessBoard.letters[i] == v.getLetter()) {
-                count = i-1;
+                count = i;
                 break;
               }
             }
@@ -193,11 +193,11 @@ public class ChessBoard extends Application {
       for(Tile[] t : board) {
         for (Tile v : t) {
           if (v.getPiece() instanceof King) {
-            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1]);
+            int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1])-1;
             int count = 0;
             for (int i = 0; i < 8; i++) {
               if (ChessBoard.letters[i] == v.getLetter()) {
-                count = i-1;
+                count = i;
                 break;
               }
             }
@@ -244,6 +244,12 @@ public class ChessBoard extends Application {
       statusinfo.setText(turn + " player's turn - Pick a piece");
       String read = scanner.nextLine();
       GridPane b = ChessBoard.chessBoard;
+      for (int i = 0; i < 8; i++) {
+        for (int h = 0; h < 8; h++) {
+          ChessBoard.getTile(i,h).setPiece(null);
+          ChessBoard.getTile(i,h).setImage(null);
+        }
+      }
 
       while (scanner.hasNextLine()) {
         String[] data = read.split(", ");
