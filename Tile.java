@@ -1,82 +1,44 @@
-abstract class Tile1 {
+import javafx.scene.control.Button;
+import javafx.scene.text.Font;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
-  protected Piece myPiece;
-  protected String letter;
-  protected int number;
-  protected Board board;
+class Tile extends Button {
+  String colour;
+  String letter;
+  int number;
+  Piece piece;
 
-  Tile1(String l, int n, Board b) {
+  Tile(String c, String n, String l) {
+    super(" ");
+    setFont(new Font(10));
+    setMinSize(50, 50);
+    colour = c;
+    number = Integer.parseInt(n);
     letter = l;
-    number = n;
-    board = b;
   }
 
-
-  public void setPiece(Piece piece) {
-    myPiece = piece;
+  public void setPiece(Piece p) {
+    piece = p;
   }
 
   public Piece getPiece() {
-    return myPiece;
-  }
-
-  public String getLetter() {
-    return letter;
+    return piece;
   }
 
   public int getNumber() {
     return number;
   }
 
-  public Board getBoard() {
-    return board;
-  }
-
-  public abstract String getColour();
-  public abstract String toString1();
-  public abstract String toString2();
-}
-
-class WhiteTile1 extends Tile1 {
-
-  WhiteTile1(String l, int n,Board b) {
-    super(l,n,b);
+  public String getLetter() {
+    return letter;
   }
 
   public String getColour() {
-    return "White";
+    return colour;
   }
 
-  public String toString1() {
-    return "+++++++";
-  }
-  public String toString2() {
-    String tileSign = " ";
-    if (myPiece != null) {
-      tileSign = myPiece.getSign();
-    }
-    return "++ " + tileSign + " ++";
-  }
-}
-
-class BlackTile1 extends Tile1 {
-
-  BlackTile1(String l, int n, Board b) {
-    super(l,n,b);
-  }
-
-  public String getColour() {
-    return "Black";
-  }
-
-  public String toString1() {
-    return "xxxxxxx";
-  }
-  public String toString2() {
-    String tileSign = " ";
-    if (myPiece != null) {
-      tileSign = myPiece.getSign();
-    }
-    return "xx " + tileSign + " xx";
+  public void setImage(Image i) {
+    setGraphic(new ImageView(i));
   }
 }

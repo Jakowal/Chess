@@ -1,16 +1,18 @@
-import java.util.ArrayList;
+import javafx.scene.image.Image;
 
 abstract class Piece {
 
   protected String colour;
-  public Tile1 tile;
+  public Tile tile;
+  public boolean isMoved = false;
+  protected Image image;
 
-  Piece(String c, Tile1 t) {
+  Piece(String c, Tile t) {
     colour = c;
     tile = t;
   }
 
-  public void setTile(Tile1 n) {
+  public void setTile(Tile n) {
     tile = n;
   }
 
@@ -18,29 +20,44 @@ abstract class Piece {
     return colour;
   }
 
-  protected boolean place(Tile1 newTile) {
+  protected boolean place(Tile newTile, Tile oldTile) {
     if (newTile.getPiece() == null) {
       tile = newTile;
       newTile.setPiece(this);
+      newTile.setImage(image);
+      oldTile.setPiece(null);
+      oldTile.setImage(null);
+      isMoved = true;
       return true;
     }
     else if (newTile.getPiece().getColour() != colour) {
       tile = newTile;
       newTile.setPiece(this);
+      newTile.setImage(image);
+      oldTile.setPiece(null);
+      oldTile.setImage(null);
+      isMoved = true;
       return true;
     }
     return false;
   }
 
-  public abstract boolean move(int oldPos, int newPos, Tile1 newTile);
+  public abstract boolean move(int oldX, int oldY, int newX, int newY, Tile newTile);
 
   public abstract String getSign();
 }
 
 class Pawn extends Piece {
 
-  Pawn(String c, Tile1 t) {
+  Pawn(String c, Tile t) {
     super(c,t);
+    if (c.compareTo("White") == 0) {
+      image = new Image("Images/WhitePawn.png", 25, 25, false, false);
+    }
+    else if (c.compareTo("Black") == 0) {
+      image = new Image("Images/BlackPawn.png", 25, 25, false, false);
+    }
+    tile.setImage(image);
   }
 
   public String getSign() {
@@ -54,93 +71,69 @@ class Pawn extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile1 newTile) {
-    if (oldPos == 8 && colour.compareTo("Black") == 0 && newPos == 24
-    || oldPos == 9  && colour.compareTo("Black") == 0 && newPos == 25
-    || oldPos == 10 && colour.compareTo("Black") == 0 && newPos == 26
-    || oldPos == 11 && colour.compareTo("Black") == 0 && newPos == 27
-    || oldPos == 12 && colour.compareTo("Black") == 0 && newPos == 28
-    || oldPos == 13 && colour.compareTo("Black") == 0 && newPos == 29
-    || oldPos == 14 && colour.compareTo("Black") == 0 && newPos == 30
-    || oldPos == 15 && colour.compareTo("Black") == 0 && newPos == 31) {
-      tile = newTile;
-      newTile.setPiece(this);
+  public boolean move(int oldX, int oldY, int newX, int newY, Tile newTile) {
+    if (oldY == 1 && colour.compareTo("Black") == 0 && newY == 3) { //Moving a black pawn two steps forwards as an initial move.
+      return place(newTile, tile);
+    }
+    else if (oldY == 6 && colour.compareTo("White") == 0 && newY == 4) {
+      return place(newTile, tile);
+    }
+    else if (newY == oldY + 1 && newX == oldX && colour == "Black" && newTile.getPiece() == null) { //Moving a black pawn one tile forwards.
+      place(newTile, tile);
+      crown(newY,newTile);
       return true;
     }
-    else if (oldPos == 48 && colour.compareTo("White") == 0 && newPos == 32
-    || oldPos == 49 && colour.compareTo("White") == 0 && newPos == 33
-    || oldPos == 50 && colour.compareTo("White") == 0 && newPos == 34
-    || oldPos == 51 && colour.compareTo("White") == 0 && newPos == 35
-    || oldPos == 52 && colour.compareTo("White") == 0 && newPos == 36
-    || oldPos == 53 && colour.compareTo("White") == 0 && newPos == 37
-    || oldPos == 54 && colour.compareTo("White") == 0 && newPos == 38
-    || oldPos == 55 && colour.compareTo("White") == 0 && newPos == 39) {
-      tile = newTile;
-      newTile.setPiece(this);
+    else if (newY == oldY-1 && newX == oldX && colour == "White" && newTile.getPiece() == null) {
+      place(newTile, tile);
+      crown(newY,newTile);
       return true;
     }
-    else if (newPos == oldPos - 8 && colour == "White" && newTile.getPiece() == null) {
-      tile = newTile;
-      crown(newPos,newTile);
+    else if (newY == oldY - 1 && newX == oldX - 1 && colour == "White" && newTile.getPiece() != null) { //Attacking with a black piece.
+      place(newTile, tile);
+      crown(newY,newTile);
       return true;
     }
-    else if (newPos == oldPos + 8 && colour == "Black" && newTile.getPiece() == null) {
-      tile = newTile;
-      crown(newPos,newTile);
+    else if (newY == oldY - 1 && newX == oldX + 1 && colour == "White" && newTile.getPiece() != null) {
+      place(newTile, tile);
+      crown(newY,newTile);
       return true;
     }
-    else if (newPos == oldPos - 9 && colour == "White" && newTile.getPiece() != null) {
-      if (newTile.getPiece().getColour() != this.getColour()) {
-        tile = newTile;
-        crown(newPos,newTile);
-        return true;
-      }
+    else if (newY == oldY + 1 && newX == oldX - 1 && colour == "Black" && newTile.getPiece() != null) {
+      place(newTile, tile);
+      crown(newY,newTile);
+      return true;
     }
-    else if (newPos == oldPos - 7 && colour == "White" && newTile.getPiece() != null) {
-      if (newTile.getPiece().getColour() != this.getColour()) {
-        tile = newTile;
-        crown(newPos,newTile);
-        return true;
-      }
-    }
-    else if (newPos == oldPos + 9 && colour == "Black" && newTile.getPiece() != null) {
-      if (newTile.getPiece().getColour() != this.getColour()) {
-        tile = newTile;
-        crown(newPos,newTile);
-        return true;
-      }
-    }
-    else if (newPos == oldPos + 7 && colour == "Black" && newTile.getPiece() != null) {
-      if (newTile.getPiece().getColour() != this.getColour()) {
-        tile = newTile;
-        crown(newPos,newTile);
-        return true;
-      }
+    else if (newY == oldY + 1 && newX == oldX + 1 && colour == "Black" && newTile.getPiece() != null) {
+      place(newTile, tile);
+      crown(newY,newTile);
+      return true;
     }
     return false;
   }
 
-  private void crown(int newPos, Tile1 newTile) {
-    for (int i = 0; i < 8; i++) {
-      if (i == newPos && colour == "White") {
-        newTile.setPiece(new Queen("White",newTile));
-        return;
-      }
+  private void crown(int newY, Tile newTile) {
+    if (newY == 0 && colour == "White") {
+      newTile.setPiece(new Queen("White",newTile));
+      return;
     }
-    for (int i = 56; i < 64; i++) {
-      if (i == newPos && colour == "Black") {
-        newTile.setPiece(new Queen("Black",newTile));
-        return;
-      }
+    if (newY == 7 && colour == "Black") {
+      newTile.setPiece(new Queen("Black",newTile));
+      return;
     }
-    newTile.setPiece(this);
   }
 }
 
 class Rook extends Piece {
 
-  Rook(String c,Tile1 t) {
+  Rook(String c, Tile t) {
     super(c,t);
+    if (c.compareTo("White") == 0) {
+      image = new Image("Images/WhiteRook.png", 25, 25, false, false);
+    }
+    else if (c.compareTo("Black") == 0) {
+      image = new Image("Images/BlackRook.png", 25, 25, false, false);
+    }
+    tile.setImage(image);
   }
 
   public String getSign() {
@@ -154,70 +147,44 @@ class Rook extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile1 newTile) {
-    Board brett = tile.getBoard();
-    if (newTile.getLetter() == tile.getLetter() && newTile.getNumber() != tile.getNumber()) {
-      if (newPos - oldPos > 0) {
-        for (int i = (oldPos+8); i <= newPos; i+=8) {
-          if ((brett.getTile(i)).getPiece() != null) {
-            if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
-            }
+  public boolean move(int oldX, int oldY, int newX, int newY, Tile newTile) {
+    if (newTile.getLetter() == tile.getLetter() && newTile.getNumber() != tile.getNumber() ||
+    newTile.getLetter() != tile.getLetter() && newTile.getNumber() == tile.getNumber()) {
+      if (newX > oldX && newY == oldY) { //Moving from A -> H.
+        for (int i = oldX+1; i < newX; i++) {
+          if (ChessBoard.getTile(i, newY).getPiece() != null) {
             return false;
           }
         }
-        tile = newTile;
-        newTile.setPiece(this);
-        return true;
+        isMoved = true;
+        return place(newTile, tile);
       }
-      else if (newPos - oldPos < 0) {
-        for (int i = (oldPos-8); i >= newPos; i-=8) {
-          if (brett.getTile(i).getPiece() != null) {
-            if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
-            }
+      else if (newX < oldX && newY == oldY) { //Moving from H -> A.
+        for (int i = oldX-1; i > newX; i--) {
+          if (ChessBoard.getTile(i, newY).getPiece() != null) {
             return false;
           }
         }
-        tile = newTile;
-        newTile.setPiece(this);
-        return true;
+        isMoved = true;
+        return place(newTile, tile);
       }
-    }
-    else if (newTile.getLetter() != tile.getLetter() && newTile.getNumber() == tile.getNumber()) {
-      if (newPos - oldPos > 0) {
-        for (int i = (oldPos+1); i <= newPos; i++) {
-          if ((brett.getTile(i)).getPiece() != null) {
-            if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
-            }
+      else if (newX == oldX && newY > oldY) { //Moving from 8 -> 1.
+        for (int i = oldY+1; i < newY; i++) {
+          if (ChessBoard.getTile(newX, i).getPiece() != null) {
             return false;
           }
         }
-        tile = newTile;
-        newTile.setPiece(this);
-        return true;
+        isMoved = true;
+        return place(newTile, tile);
       }
-      else if (newPos - oldPos < 0) {
-        for (int i = (oldPos-1); i >= newPos; i--) {
-          if (brett.getTile(i).getPiece() != null) {
-            if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
-            }
+      else if (newX == oldX && newY < oldY) { //Moving from 1 -> 8.
+        for (int i = oldY-1; i > newY; i--) {
+          if (ChessBoard.getTile(newX, i).getPiece() != null) {
             return false;
           }
         }
-        tile = newTile;
-        newTile.setPiece(this);
-        return true;
+        isMoved = true;
+        return place(newTile, tile);
       }
     }
     return false;
@@ -226,8 +193,15 @@ class Rook extends Piece {
 
 class Bishop extends Piece {
 
-  Bishop(String c,Tile1 t) {
+  Bishop(String c, Tile t) {
     super(c,t);
+    if (c.compareTo("White") == 0) {
+      image = new Image("Images/WhiteBishop.png", 25, 25, false, false);
+    }
+    else if (c.compareTo("Black") == 0) {
+      image = new Image("Images/BlackBishop.png", 25, 25, false, false);
+    }
+    tile.setImage(image);
   }
 
   public String getSign() {
@@ -241,80 +215,50 @@ class Bishop extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile1 newTile) {
-    if (newTile.getColour() == tile.getColour()) {
-      Board brett = tile.getBoard();
-      if (brett.letterNumber(newTile.getLetter()) > brett.letterNumber(tile.getLetter())) {
-        if (newTile.getNumber() > tile.getNumber()) {
-          for (int i = (oldPos+9); i <= newPos; i+=9) {
-            if (brett.getTile(i).getPiece() != null) {
-              if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-                tile = newTile;
-                newTile.setPiece(this);
-                return true;
-              }
+  public boolean move(int oldX, int oldY, int newX, int newY, Tile newTile) {
+    if (newTile.getColour() == tile.getColour() && newX != oldX && newY != oldY) {
+      if (newTile.getLetter().compareTo(tile.getLetter()) > 0 ) { //Moving to the right edge on the board.
+        if (newTile.getNumber() > tile.getNumber()) { //Moving up the board.
+          int h = oldY-1;
+          for (int i = oldX+1; i < newX; i++) {
+            if (ChessBoard.getTile(i, h).getPiece() != null) {
               return false;
             }
-            else if (brett.getTile(i).getPiece() == null) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
-            }
+            h--;
           }
+          return place(newTile, tile);
         }
-        else {
-          for (int i = (oldPos-7); i >= newPos; i-=7) {
-            if (brett.getTile(i).getPiece() != null) {
-              if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-                tile = newTile;
-                newTile.setPiece(this);
-                return true;
-              }
+        else if (newTile.getNumber() < tile.getNumber()) { //Moving down the board.
+          int h = oldY+1;
+          for (int i = oldX+1; i < newX; i++) {
+            if (ChessBoard.getTile(i, h).getPiece() != null) {
               return false;
             }
-            else if (brett.getTile(i).getPiece() == null) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
-            }
+            h++;
           }
+          return place(newTile, tile);
         }
       }
-      else {
-        if (newTile.getNumber() > tile.getNumber()) {
-          for (int i = (oldPos+7); i <= newPos; i+=7) {
-            if (brett.getTile(i).getPiece() != null) {
-              if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-                tile = newTile;
-                newTile.setPiece(this);
-                return true;
-              }
+      else if (newTile.getLetter().compareTo(tile.getLetter()) < 0) { //Moving to the left edge of the .
+        if (newTile.getNumber() > tile.getNumber()) { //Moving up the board.
+          int h = oldY-1;
+          for (int i = oldX+1; i < newX; i++) {
+            if (ChessBoard.getTile(i, h).getPiece() != null) {
               return false;
             }
-            else if (brett.getTile(i).getPiece() == null) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
-            }
+            h--;
           }
+          return place(newTile, tile);
         }
-        else {
-          for (int i = (oldPos-9); i >= newPos; i-=9) {
-            if (brett.getTile(i).getPiece() != null) {
-              if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-                tile = newTile;
-                newTile.setPiece(this);
-                return true;
-              }
-              System.out.println(1);
+        else if (newTile.getNumber() < tile.getNumber()) { //Moving down the board.
+          int h = oldY+1;
+          for (int i = oldX+1; i < newX; i++) {
+            if (ChessBoard.getTile(i, h).getPiece() != null) {
               return false;
             }
-            else if (brett.getTile(i).getPiece() == null) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
-            }
+            h++;
           }
+          return place(newTile, tile);
         }
       }
     }
@@ -324,8 +268,15 @@ class Bishop extends Piece {
 
 class Knight extends Piece {
 
-  Knight(String c,Tile1 t) {
+  Knight(String c, Tile t) {
     super(c,t);
+    if (c.compareTo("White") == 0) {
+      image = new Image("Images/WhiteKnight.png", 25, 25, false, false);
+    }
+    else if (c.compareTo("Black") == 0) {
+      image = new Image("Images/BlackKnight.png", 25, 25, false, false);
+    }
+    tile.setImage(image);
   }
 
   public String getSign() {
@@ -339,30 +290,30 @@ class Knight extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile1 newTile) {
-    if (newPos == oldPos - 17) {
-      return place(newTile);
+  public boolean move(int oldX, int oldY, int newX, int newY, Tile newTile) {
+    if (newX == oldX+2 && newY == oldY-1) {
+      return place(newTile, tile);
     }
-    else if (newPos == oldPos - 15) {
-      return place(newTile);
+    else if (newX == oldX+2 && newY == oldY+1) {
+      return place(newTile, tile);
     }
-    else if (newPos == oldPos - 6) {
-      return place(newTile);
+    else if (newX == oldX-2 && newY == oldY-1) {
+      return place(newTile, tile);
     }
-    else if (newPos == oldPos - 10) {
-      return place(newTile);
+    else if (newX == oldX-2 && newY == oldY+1) {
+      return place(newTile, tile);
     }
-    else if (newPos == oldPos + 17) {
-      return place(newTile);
+    else if (newX == oldX-1 && newY == oldY+2) {
+      return place(newTile, tile);
     }
-    else if (newPos == oldPos + 15) {
-      return place(newTile);
+    else if (newX == oldX+1 && newY == oldY+2) {
+      return place(newTile, tile);
     }
-    else if (newPos == oldPos + 6) {
-      return place(newTile);
+    else if (newX == oldX-1 && newY == oldY-2) {
+      return place(newTile, tile);
     }
-    else if (newPos == oldPos + 10) {
-      return place(newTile);
+    else if (newX == oldX+1 && newY == oldY-2) {
+      return place(newTile, tile);
     }
     return false;
   }
@@ -370,8 +321,15 @@ class Knight extends Piece {
 
 class Queen extends Piece {
 
-  Queen(String c,Tile1 t) {
+  Queen(String c, Tile t) {
     super(c,t);
+    if (c.compareTo("White") == 0) {
+      image = new Image("Images/WhiteQueen.png", 25, 25, false, false);
+    }
+    else if (c.compareTo("Black") == 0) {
+      image = new Image("Images/BlackQueen.png", 25, 25, false, false);
+    }
+    tile.setImage(image);
   }
 
   public String getSign() {
@@ -385,158 +343,101 @@ class Queen extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile1 newTile) {
-    Board brett = tile.getBoard();
-    if (newTile.getLetter() == tile.getLetter() && newTile.getNumber() != tile.getNumber()) {
-      return rookMove1(oldPos,newPos,newTile,brett);
-    }
-    else if (newTile.getLetter() != tile.getLetter() && newTile.getNumber() == tile.getNumber()) {
-      return rookMove2(oldPos,newPos,newTile,brett);
+  public boolean move(int oldX, int oldY, int newX, int newY, Tile newTile) {
+    if (newTile.getLetter() == tile.getLetter() && newTile.getNumber() != tile.getNumber() ||
+    newTile.getLetter() != tile.getLetter() && newTile.getNumber() == tile.getNumber()) {
+      return rookMove(oldX, oldY, newX, newY, newTile);
     }
     else if (newTile.getColour() == tile.getColour()) {
-      return bishopMove(oldPos,newPos,newTile,brett);
+      return bishopMove(oldX, oldY, newX, newY, newTile);
     }
     return false;
   }
 
-  private boolean rookMove1(int oldPos, int newPos, Tile1 newTile, Board brett) {
-    if (newPos - oldPos > 0) {
-      for (int i = (oldPos+8); i <= newPos; i+=8) {
-        if ((brett.getTile(i)).getPiece() != null) {
-          if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-            tile = newTile;
-            newTile.setPiece(this);
-            return true;
+  private boolean rookMove(int oldX, int oldY, int newX, int newY, Tile newTile) {
+      if (newX > oldX && newY == oldY) { //Moving from A -> H.
+        for (int i = oldX+1; i < newX; i++) {
+          if (ChessBoard.getTile(i, newY).getPiece() != null) {
+            return false;
           }
-          return false;
         }
+        isMoved = true;
+        return place(newTile, tile);
       }
-      tile = newTile;
-      return true;
-    }
-    else if (newPos - oldPos < 0) {
-      for (int i = (oldPos-8); i >= newPos; i-=8) {
-        if (brett.getTile(i).getPiece() != null) {
-          if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-            tile = newTile;
-            newTile.setPiece(this);
-            return true;
+      else if (newX < oldX && newY == oldY) { //Moving from H -> A.
+        for (int i = oldX-1; i > newX; i--) {
+          if (ChessBoard.getTile(i, newY).getPiece() != null) {
+            return false;
           }
-          return false;
         }
+        isMoved = true;
+        return place(newTile, tile);
       }
-      tile = newTile;
-      newTile.setPiece(this);
-      return true;
-    }
+      else if (newX == oldX && newY > oldY) { //Moving from 8 -> 1.
+        for (int i = oldY+1; i < newY; i++) {
+          if (ChessBoard.getTile(newX, i).getPiece() != null) {
+            return false;
+          }
+        }
+        isMoved = true;
+        return place(newTile, tile);
+      }
+      else if (newX == oldX && newY < oldY) { //Moving from 1 -> 8.
+        for (int i = oldY-1; i > newY; i--) {
+          if (ChessBoard.getTile(newX, i).getPiece() != null) {
+            return false;
+          }
+        }
+        isMoved = true;
+        return place(newTile, tile);
+      }
     return false;
   }
 
-  private boolean rookMove2(int oldPos, int newPos, Tile1 newTile, Board brett) {
-    if (newPos - oldPos > 0) {
-      for (int i = (oldPos+1); i <= newPos; i++) {
-        if ((brett.getTile(i)).getPiece() != null) {
-          if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-            tile = newTile;
-            newTile.setPiece(this);
-            return true;
-          }
-          return false;
-        }
-      }
-      tile = newTile;
-      newTile.setPiece(this);
-      return true;
-    }
-    else if (newPos - oldPos < 0) {
-      for (int i = (oldPos-1); i >= newPos; i--) {
-        if (brett.getTile(i).getPiece() != null) {
-          if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-            tile = newTile;
-            newTile.setPiece(this);
-            return true;
-          }
-          return false;
-        }
-      }
-      tile = newTile;
-      newTile.setPiece(this);
-      return true;
-    }
-    return false;
-  }
-
-  private boolean bishopMove(int oldPos, int newPos, Tile1 newTile, Board brett) {
-    if (brett.letterNumber(newTile.getLetter()) > brett.letterNumber(tile.getLetter())) {
-      if (newTile.getNumber() > tile.getNumber()) {
-        for (int i = (oldPos+9); i <= newPos; i+=9) {
-          if (brett.getTile(i).getPiece() != null) {
-            if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
+  private boolean bishopMove(int oldX, int oldY, int newX, int newY, Tile newTile) {
+    if (newTile.getColour() == tile.getColour() && newX != oldX && newY != oldY) {
+      if (newTile.getLetter().compareTo(tile.getLetter()) > 0 ) { //Moving to the right edge on the board.
+        if (newTile.getNumber() > tile.getNumber()) { //Moving up the board.
+          int h = oldY-1;
+          for (int i = oldX+1; i < newX; i++) {
+            if (ChessBoard.getTile(i, h).getPiece() != null) {
+              return false;
             }
-            return false;
+            h--;
           }
-          else if (brett.getTile(i).getPiece() == null) {
-            tile = newTile;
-            newTile.setPiece(this);
-            return true;
+          return place(newTile, tile);
+        }
+        else if (newTile.getNumber() < tile.getNumber()) { //Moving down the board.
+          int h = oldY+1;
+          for (int i = oldX+1; i < newX; i++) {
+            if (ChessBoard.getTile(i, h).getPiece() != null) {
+              return false;
+            }
+            h++;
           }
+          return place(newTile, tile);
         }
       }
-      else {
-        for (int i = (oldPos-7); i >= newPos; i-=7) {
-          if (brett.getTile(i).getPiece() != null) {
-            if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
+      else if (newTile.getLetter().compareTo(tile.getLetter()) < 0) { //Moving to the left edge of the .
+        if (newTile.getNumber() > tile.getNumber()) { //Moving up the board.
+          int h = oldY-1;
+          for (int i = oldX+1; i < newX; i++) {
+            if (ChessBoard.getTile(i, h).getPiece() != null) {
+              return false;
             }
-            return false;
+            h--;
           }
-          else if (brett.getTile(i).getPiece() == null) {
-            tile = newTile;
-            newTile.setPiece(this);
-            return true;
-          }
+          return place(newTile, tile);
         }
-      }
-    }
-    else {
-      if (newTile.getNumber() > tile.getNumber()) {
-        for (int i = (oldPos+7); i <= newPos; i+=7) {
-          if (brett.getTile(i).getPiece() != null) {
-            if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
+        else if (newTile.getNumber() < tile.getNumber()) { //Moving down the board.
+          int h = oldY+1;
+          for (int i = oldX+1; i < newX; i++) {
+            if (ChessBoard.getTile(i, h).getPiece() != null) {
+              return false;
             }
-            return false;
+            h++;
           }
-          else if (brett.getTile(i).getPiece() == null) {
-            tile = newTile;
-            newTile.setPiece(this);
-            return true;
-          }
-        }
-      }
-      else {
-        for (int i = (oldPos-9); i >= newPos; i-=9) {
-          if (brett.getTile(i).getPiece() != null) {
-            if (brett.getTile(i).getPiece().getColour() != this.colour && i == newPos) {
-              tile = newTile;
-              newTile.setPiece(this);
-              return true;
-            }
-            System.out.println(1);
-            return false;
-          }
-          else if (brett.getTile(i).getPiece() == null) {
-            tile = newTile;
-            newTile.setPiece(this);
-            return true;
-          }
+          return place(newTile, tile);
         }
       }
     }
@@ -546,8 +447,15 @@ class Queen extends Piece {
 
 class King extends Piece {
 
-  King(String c,Tile1 t) {
+  King(String c, Tile t) {
     super(c,t);
+    if (c.compareTo("White") == 0) {
+      image = new Image("Images/WhiteKing.png", 25, 25, false, false);
+    }
+    else if (c.compareTo("Black") == 0) {
+      image = new Image("Images/BlackKing.png", 25, 25, false, false);
+    }
+    tile.setImage(image);
   }
 
   public String getSign() {
@@ -561,27 +469,71 @@ class King extends Piece {
     return sign;
   }
 
-  public boolean move(int oldPos, int newPos, Tile1 newTile) {
-    if (oldPos == 59 && newPos == 63 && colour == "White" && newTile.getPiece().getColour() == colour
-    || oldPos == 59 && newPos == 56 && colour == "White" && newTile.getPiece().getColour() == colour) {
-      newTile.setPiece(new King(colour, newTile));
+  private boolean castleWhite(int oldX, int oldY, int newX, int newY, Tile newTile) {
+    if (newX > oldX && newY == oldY) {
+      for (int i = oldX+1; i < newX-1; i++) {
+        if (ChessBoard.getTile(i, newY) != null) {
+          return false;
+        }
+      }
+      newTile.setPiece(new King(colour, ChessBoard.getTile(oldX+2,newY)));
       tile.setPiece(new Rook(colour,tile));
       return true;
     }
-    else if (oldPos == 3 && newPos == 0 && colour == "Black" && newTile.getPiece().getColour() == colour
-    || oldPos == 3 && newPos == 7 && colour == "Black" && newTile.getPiece().getColour() == colour) {
-      newTile.setPiece(new King(colour, newTile));
+    else if (newX < oldX && newY == oldY) {
+      for (int i = oldX-1; i > newX+1; i--) {
+        if (ChessBoard.getTile(i, newY) != null) {
+          return false;
+        }
+      }
+      newTile.setPiece(new King(colour, ChessBoard.getTile(oldX-2,newY)));
       tile.setPiece(new Rook(colour,tile));
       return true;
     }
-    else if (newPos == oldPos - 1 || newPos == oldPos + 1) {
-      return place(newTile);
+    return false;
+  }
+
+  private boolean castleBlack(int oldX, int oldY, int newX, int newY, Tile newTile) {
+    if (newX > oldX && newY == oldY) {
+      for (int i = oldX+1; i < newX-1; i++) {
+        if (ChessBoard.getTile(i, newY) != null) {
+          return false;
+        }
+      }
+      newTile.setPiece(new King(colour, ChessBoard.getTile(oldX+2,newY)));
+      tile.setPiece(new Rook(colour,tile));
+      return true;
     }
-    else if (newPos == oldPos - 9 || newPos == oldPos - 8 || newPos == oldPos - 7) {
-      return place(newTile);
+    else if (newX < oldX && newY == oldY) {
+      for (int i = oldX-1; i > newX+1; i--) {
+        if (ChessBoard.getTile(i, newY) != null) {
+          return false;
+        }
+      }
+      newTile.setPiece(new King(colour, ChessBoard.getTile(oldX-2,newY)));
+      tile.setPiece(new Rook(colour,tile));
+      return true;
     }
-    else if (newPos == oldPos + 7 || newPos == oldPos + 8 || newPos == oldPos + 9) {
-      return place(newTile);
+    return false;
+  }
+
+  public boolean move(int oldX, int oldY, int newX, int newY, Tile newTile) {
+    if (newTile.getPiece() != null) {
+      if (!isMoved && colour == "White" && !newTile.getPiece().isMoved && newTile.getPiece().getSign() == "R") {
+        castleWhite(oldX, oldY, newX, newY, newTile);
+      }
+      else if (!isMoved && colour == "Black" && !newTile.getPiece().isMoved && newTile.getPiece().getSign() == "r") {
+        castleBlack(oldX, oldY, newX, newY, newTile);
+      }
+    }
+    else if (newX == oldX-1 && newY == oldY || newX == oldX+1 && newY == oldY) {
+      return place(newTile, tile);
+    }
+    else if (newX == oldX-1 && newY == oldY+1 || newX == oldX && newY == oldY+1 || newX == oldX+1 && newY == oldY+1) {
+      return place(newTile, tile);
+    }
+    else if (newX == oldX-1 && newY == oldY-1 || newX == oldX && newY == oldY-1 || newX == oldX+1 && newY == oldY-1) {
+      return place(newTile, tile);
     }
     return false;
   }
