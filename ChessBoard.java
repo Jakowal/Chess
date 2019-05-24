@@ -22,15 +22,15 @@ public class ChessBoard extends Application {
   public static final String[] letters = {"A","B","C","D","E","F","G","H"};
   public static final String[] numbers = {"8","7","6","5","4","3","2","1"};
   public static Text statusinfo = new Text("");
+  public static GridPane chessBoard;
   public static boolean finished = false;
   private static Tile[][] board = new Tile[8][8];
-  public static GridPane chessBoard;
 
 
-  class Clickhandler implements EventHandler<ActionEvent> {
+  class Clickhandler implements EventHandler<ActionEvent> { //Moves the pieces when clicked.
 
-    public String turn = "White";
-    private boolean firstClicked = false;
+    public String turn = "White"; //Whose turn it is.
+    private boolean firstClicked = false; //Used to determine whether a piece has been selected or not.
     private Tile fromTile;
     private int oldX;
     private int oldY;
@@ -38,41 +38,41 @@ public class ChessBoard extends Application {
     @Override
     public void handle(ActionEvent e) {
       if (!ChessBoard.finished) {
-        Node source = (Node)e.getSource();
+        Node source = (Node)e.getSource(); //Finding the coordinates of the clicked tile.
         int x = GridPane.getColumnIndex(source);
         int y = GridPane.getRowIndex(source);
-        Tile tile = ChessBoard.getTile(x,y);
-        if (!firstClicked && tile.getPiece() != null && tile.getPiece().getColour() != turn) {
+        Tile tile = ChessBoard.getTile(x,y); //The tile that has been clicked.
+        if (!firstClicked && tile.getPiece() != null && tile.getPiece().getColour() != turn) { //Makes sure a piece of the correct colour is chosen.
           statusinfo.setText(turn + " player's turn - Pick a piece OF YOUR COLOUR");
         }
-        else if (!firstClicked && tile.getPiece() != null) {
+        else if (!firstClicked && tile.getPiece() != null) { //Selects a piece.
           firstClick(tile,x,y);
           statusinfo.setText(turn + " player's turn - Pick a location");
           firstClicked = true;
         }
-        else if (firstClicked && x == oldX && y == oldY) {
+        else if (firstClicked && x == oldX && y == oldY) { //Makes sure a new location is clicked when the piece is moved.
           oldX = x;
           oldY = y;
         }
-        else if (firstClicked) {
+        else if (firstClicked) { //Attempts to move the piece.
           secondClick(tile,x,y);
           firstClicked = false;
         }
-        else if (!firstClicked) {
+        else if (!firstClicked) { //Promts the players to choose a piece.
           statusinfo.setText(turn + " player's turn - Pick a piece");
           firstClicked = false;
         }
       }
     }
     private void firstClick(Tile t, int x, int y) {
-      fromTile = t;
+      fromTile = t; //Sets the tile a piece is moved from.
       oldX = x;
       oldY = y;
     }
 
-    private boolean secondClick(Tile t, int x, int y) {
-      boolean clicked = !fromTile.getPiece().move(oldX,oldY,x,y,t);
-      if (turn == "White" && !clicked) {
+    private void secondClick(Tile t, int x, int y) {
+      boolean clicked = !fromTile.getPiece().move(oldX,oldY,x,y,t); //Attempts to move the piece.
+      if (turn == "White" && !clicked) { //Changes the turn if a piece was successfully moved..
         turn = "Black";
       }
       else if (!clicked) {
@@ -80,24 +80,21 @@ public class ChessBoard extends Application {
       }
       else {
         statusinfo.setText(turn + " player's turn - Pick a location");
-        return false;
+        return;
       }
       statusinfo.setText(turn + " player's turn - Pick a piece");
-      return true;
     }
   }
 
-  class SaveHandler implements EventHandler<ActionEvent> {
+  class SaveHandler implements EventHandler<ActionEvent> { //Saves the current boardstate.
 
     @Override
     public void handle(ActionEvent e) {
-      for (int i = 0; i < 6; i++) {
-        try {
-          saveGame();
-        }
-        catch (FileNotFoundException fe) { System.out.println("SaveHandler exception: " + fe);}
-        catch (UnsupportedEncodingException ue) {System.out.println("SaveHandler exception: " + ue);}
+      try {
+        saveGame(); //Tries to save the game.
       }
+      catch (FileNotFoundException fe) { System.out.println("SaveHandler exception: " + fe);}
+      catch (UnsupportedEncodingException ue) {System.out.println("SaveHandler exception: " + ue);}
     }
 
     private void saveGame() throws FileNotFoundException, UnsupportedEncodingException {
@@ -105,7 +102,7 @@ public class ChessBoard extends Application {
       String turn;
       writer.println(new Clickhandler().turn);
       writer.println("#, Pawns, {tileLetter,tileNumber,colour}");
-      for(Tile[] t : board) {
+      for(Tile[] t : board) { //Checks for all the pieces of the given kind and saves them in the document after the correct title.
         for (Tile v : t) {
           if (v.getPiece() instanceof Pawn) {
             int num = Integer.parseInt(ChessBoard.numbers[v.getNumber()-1])-1;
@@ -210,23 +207,23 @@ public class ChessBoard extends Application {
     }
   }
 
-  class Stophandler implements EventHandler<ActionEvent> {
+  class Stophandler implements EventHandler<ActionEvent> { //Closes the programme.
     @Override
     public void handle(ActionEvent e) {
       Platform.exit();
     }
   }
 
-  class Loadhandler implements EventHandler<ActionEvent> {
+  class Loadhandler implements EventHandler<ActionEvent> { //Loads a saved game.
 
     @Override
     public void handle(ActionEvent e) {
       try {
         File savegame = new File("Savegame.txt");
-        setBoard(readFromFile(savegame));
+        setBoard(readFromFile(savegame)); //Attempts to load a savefile.
       }
       catch (FileNotFoundException fe) {
-        System.out.println("File not found.");
+        System.out.println("File not found. Error: " + fe);
       }
     }
 
@@ -243,18 +240,18 @@ public class ChessBoard extends Application {
       String turn = scanner.nextLine();
       statusinfo.setText(turn + " player's turn - Pick a piece");
       String read = scanner.nextLine();
-      GridPane b = ChessBoard.chessBoard;
-      for (int i = 0; i < 8; i++) {
+      GridPane b = ChessBoard.chessBoard; //Picks up a chessboard.
+      for (int i = 0; i < 8; i++) { //Empties the board.
         for (int h = 0; h < 8; h++) {
           ChessBoard.getTile(i,h).setPiece(null);
           ChessBoard.getTile(i,h).setImage(null);
         }
       }
 
-      while (scanner.hasNextLine()) {
+      while (scanner.hasNextLine()) { //Searches the entire savefile.
         String[] data = read.split(", ");
 
-        if (data[1].compareTo("Pawns") == 0) {
+        if (data[1].compareTo("Pawns") == 0) { //Places the pieces of each type onto the board.
           while (scanner.hasNextLine()) {
             read = scanner.nextLine();
             if (read.charAt(0) == '#') {
@@ -344,17 +341,17 @@ public class ChessBoard extends Application {
   @Override
   public void start(Stage teater) throws FileNotFoundException {
 
-    statusinfo.setText("White player's turn - Pick a piece");
+    statusinfo.setText("White player's turn - Pick a piece"); //This piece of text is used to give information about turn to the player.
 	  statusinfo.setFont(new Font(15));
     statusinfo.setX(10);  statusinfo.setY(500);
 
-    Button stopButton = makeStopButton();
-    Button saveButton = makeSaveButton();
-    Button loadButton = makeLoadButton();
-    setBoard(makeBoard());
+    Button stopButton = makeStopButton(); //Creates the three buttons used for stopping,
+    Button saveButton = makeSaveButton(); //saving,
+    Button loadButton = makeLoadButton(); //and loading.
+    setBoard(makeBoard()); //Creates the board.
 
     Pane pane = new Pane();
-    pane.setPrefSize(600, 600);
+    pane.setPrefSize(500, 560);
     pane.getChildren().add(chessBoard);
     pane.getChildren().add(statusinfo);
     pane.getChildren().add(stopButton);
@@ -369,11 +366,11 @@ public class ChessBoard extends Application {
     teater.show();
   }
 
-  public static Tile getTile(int l, int n) {
+  public static Tile getTile(int l, int n) { //Returns the specified tile.
     return board[l][n];
   }
 
-  public void setBoard(GridPane b) {
+  public void setBoard(GridPane b) { //Changes the board, used for loading a saved game.
     chessBoard = b;
   }
 
@@ -436,13 +433,13 @@ public class ChessBoard extends Application {
     chessBoard.setGridLinesVisible(true);
     chessBoard.setLayoutX(30);  chessBoard.setLayoutY(30);
     Clickhandler click = new Clickhandler();
-    boolean lastWhite = false;
-    for (int i = 0; i < 8; i++) {
+    boolean lastWhite = false; //Keeps track of what colour the next piece should be.
+    for (int i = 0; i < 8; i++) { //Sets the tiles for the chessboard.
       for (int h = 0; h < 8; h++) {
         Tile tile;
         if (!lastWhite) {
           tile = new Tile("White", numbers[h], letters[i]);
-          tile.setStyle("-fx-background-color: #faf5ef; -fx-border-color: #000000; -fx-border-width: 1px;");
+          tile.setStyle("-fx-background-color: #faf5ef; -fx-border-color: #000000; -fx-border-width: 1px;"); //Setting tiles with a small frame around with slightly brown white and a dark brown colour.
           lastWhite = true;
         }
         else {
@@ -463,7 +460,7 @@ public class ChessBoard extends Application {
     return chessBoard;
   }
 
-  private void placePieces() {
+  private void placePieces() { //Creates and places the pieces on the board.
     placePawns();
     placeRooks();
     placeKnights();
