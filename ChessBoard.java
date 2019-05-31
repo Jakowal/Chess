@@ -71,11 +71,11 @@ public class ChessBoard extends Application {
     }
 
     private void secondClick(Tile t, int x, int y) {
-      boolean clicked = !fromTile.getPiece().move(oldX,oldY,x,y,t); //Attempts to move the piece.
-      if (turn == "White" && !clicked) { //Changes the turn if a piece was successfully moved..
+      boolean moved = fromTile.getPiece().move(oldX,oldY,x,y,t); //Attempts to move the piece.
+      if (turn == "White" && moved) { //Changes the turn if a piece was successfully moved..
         turn = "Black";
       }
-      else if (!clicked) {
+      else if (moved) {
         turn = "White";
       }
       else {
@@ -274,7 +274,7 @@ public class ChessBoard extends Application {
             int tileX = Integer.parseInt(in[0]);
             int tileY = Integer.parseInt(in[1]);
             String colour = in[2];
-            getTile(tileX, tileY).setPiece(new Rook(colour,getTile(tileX, tileY)));
+            getTile(tileX, tileY).setPiece(new Rook(colour,getTile(tileX, tileY),false));
           }
         }
         else if (data[1].compareTo("Bishops") == 0) {
@@ -326,7 +326,7 @@ public class ChessBoard extends Application {
             int tileX = Integer.parseInt(in[0]);
             int tileY = Integer.parseInt(in[1]);
             String colour = in[2];
-            getTile(tileX, tileY).setPiece(new King(colour,getTile(tileX, tileY)));
+            getTile(tileX, tileY).setPiece(new King(colour,getTile(tileX, tileY),false));
           }
         }
       }
@@ -470,8 +470,8 @@ public class ChessBoard extends Application {
   }
 
   private void placeKings() {
-    board[4][0].setPiece(new King("Black", board[4][0]));
-    board[4][7].setPiece(new King("White", board[4][7]));
+    board[4][0].setPiece(new King("Black", board[4][0], false));
+    board[4][7].setPiece(new King("White", board[4][7], false));
   }
 
   private void placeQueens() {
@@ -494,10 +494,10 @@ public class ChessBoard extends Application {
   }
 
   private void placeRooks() {
-    board[0][0].setPiece(new Rook("Black", board[0][0]));
-    board[7][0].setPiece(new Rook("Black", board[7][0]));
-    board[0][7].setPiece(new Rook("White", board[0][7]));
-    board[7][7].setPiece(new Rook("White", board[7][7]));
+    board[0][0].setPiece(new Rook("Black", board[0][0], false));
+    board[7][0].setPiece(new Rook("Black", board[7][0], false));
+    board[0][7].setPiece(new Rook("White", board[0][7], false));
+    board[7][7].setPiece(new Rook("White", board[7][7], false));
   }
 
   private void placePawns() {

@@ -4,7 +4,7 @@ abstract class Piece {
 
   protected String colour; //The colour of the piece. Will either be "White" or "Black".
   public Tile tile; //The tile this piece is placed on.
-  public boolean isMoved = false; //This variable is used for castling with the king and rooks.
+  public boolean isMoved; //This variable is used for castling with the king and rooks.
   protected Image image; //The image representing the piece. Every subclass sets its own image in the constructor.
 
   Piece(String c, Tile t) { //Upon creating a new piece, it needs to know its Colour and what tile it is placed on.
@@ -125,8 +125,9 @@ class Pawn extends Piece { //Class for the Pawn type piece.
 
 class Rook extends Piece { //Class for the Rook type piece.
 
-  Rook(String c, Tile t) {
+  Rook(String c, Tile t, boolean m) { //The variable m is used to set whether or not the piece has been moved. This is to make sure a new piece created during castling cannot be re-castled.
     super(c,t);
+    isMoved = m;
     if (c.compareTo("White") == 0) {
       image = new Image("Images/WhiteRook.png", 25, 25, false, false);
     }
@@ -443,8 +444,9 @@ class Queen extends Piece { //A class for the Queen type piece.
 
 class King extends Piece { //A class for the King type piece.
 
-  King(String c, Tile t) {
+  King(String c, Tile t, Boolean m) {
     super(c,t);
+    isMoved = m;
     if (c.compareTo("White") == 0) {
       image = new Image("Images/WhiteKing.png", 25, 25, false, false);
     }
@@ -468,10 +470,10 @@ class King extends Piece { //A class for the King type piece.
   public boolean move(int oldX, int oldY, int newX, int newY, Tile newTile) {
     if (newTile.getPiece() != null) { //If another piece is selected as a location to move, the piece first attempts to castle.
       if (!isMoved && colour == "White" && !newTile.getPiece().isMoved && newTile.getPiece().getSign() == "R") {
-        castleWhite(oldX, oldY, newX, newY, newTile);
+        return castleWhite(oldX, oldY, newX, newY, newTile);
       }
       else if (!isMoved && colour == "Black" && !newTile.getPiece().isMoved && newTile.getPiece().getSign() == "r") {
-        castleBlack(oldX, oldY, newX, newY, newTile);
+        return castleBlack(oldX, oldY, newX, newY, newTile);
       }
     }
     else if (newX == oldX-1 && newY == oldY || newX == oldX+1 && newY == oldY) { //Attempts to move the piece to a location.
@@ -486,51 +488,60 @@ class King extends Piece { //A class for the King type piece.
     return false;
   }
 
-  private boolean castleWhite(int oldX, int oldY, int newX, int newY, Tile newTile) { //Checks whether both pieces are of the same colour with not pieces between and neither has been moved.
+  private boolean castleWhite(int oldX, int oldY, int newX, int newY, Tile newTile) { //Checks whether both pieces are of the same colour with no pieces between and neither has been moved.
     if (newX > oldX && newY == oldY) {
-      for (int i = oldX+1; i < newX-1; i++) {
+      for (int i = oldX+1; i < newX-2; i++) {
         if (ChessBoard.getTile(i, newY) != null) {
           return false;
         }
       }
-      newTile.setPiece(new King(colour, ChessBoard.getTile(oldX+2,newY)));
-      tile.setPiece(new Rook(colour,tile));
-      return true;
+      ChessBoard.getTile(oldX+2,newY).setPiece(new King(colour,ChessBoard.getTile(oldX+2,newY),true));
+      ChessBoard.getTile(oldX+1,newY).setPiece(new Rook(colour,ChessBoard.getTile(oldX+1,newY),true));
+      return castleMove(newX,newY);
     }
     else if (newX < oldX && newY == oldY) {
-      for (int i = oldX-1; i > newX+1; i--) {
+      for (int i = oldX-1; i > newX+2; i--) {
         if (ChessBoard.getTile(i, newY) != null) {
           return false;
         }
       }
-      newTile.setPiece(new King(colour, ChessBoard.getTile(oldX-2,newY)));
-      tile.setPiece(new Rook(colour,tile));
-      return true;
+      ChessBoard.getTile(oldX-2,newY).setPiece(new King(colour,ChessBoard.getTile(oldX-2,newY),true));
+      ChessBoard.getTile(oldX-1,newY).setPiece(new Rook(colour,ChessBoard.getTile(oldX-1,newY),true));
+      return castleMove(newX,newY);
     }
     return false;
   }
 
   private boolean castleBlack(int oldX, int oldY, int newX, int newY, Tile newTile) {
     if (newX > oldX && newY == oldY) {
-      for (int i = oldX+1; i < newX-1; i++) {
+      for (int i = oldX+1; i < newX-2; i++) {
         if (ChessBoard.getTile(i, newY) != null) {
           return false;
         }
       }
-      newTile.setPiece(new King(colour, ChessBoard.getTile(oldX+2,newY)));
-      tile.setPiece(new Rook(colour,tile));
-      return true;
+      ChessBoard.getTile(oldX+2,newY).setPiece(new King(colour,ChessBoard.getTile(oldX+2,newY),true));
+      ChessBoard.getTile(oldX+1,newY).setPiece(new Rook(colour,ChessBoard.getTile(oldX+1,newY),true));
+      return castleMove(newX,newY);
     }
     else if (newX < oldX && newY == oldY) {
-      for (int i = oldX-1; i > newX+1; i--) {
+      for (int i = oldX-1; i > newX+2; i--) {
         if (ChessBoard.getTile(i, newY) != null) {
           return false;
         }
       }
-      newTile.setPiece(new King(colour, ChessBoard.getTile(oldX-2,newY)));
-      tile.setPiece(new Rook(colour,tile));
-      return true;
+      ChessBoard.getTile(oldX-2,newY).setPiece(new King(colour,ChessBoard.getTile(oldX-2,newY),true));
+      ChessBoard.getTile(oldX-1,newY).setPiece(new Rook(colour,ChessBoard.getTile(oldX-1,newY),true));
+      return castleMove(newX,newY);
     }
     return false;
+  }
+  private boolean castleMove(int newX, int newY) {
+    tile.setPiece(null);
+    tile.setImage(null);
+    ChessBoard.getTile(newX, newY).getPiece().isMoved = true;
+    ChessBoard.getTile(newX, newY).setPiece(null);
+    ChessBoard.getTile(newX, newY).setImage(null);
+    isMoved = true;
+    return true;
   }
 }
